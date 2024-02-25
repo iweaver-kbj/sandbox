@@ -1,5 +1,5 @@
 namespace: spring-simple
-image: 192.168.100.51:5000/spring-simple:latest
+image: cloudcheflabs/spring-simple:latest
 imagePullPolicy: Always
 replicas: 3
 resources:

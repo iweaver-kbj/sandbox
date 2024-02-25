@@ -4,7 +4,7 @@
 set -e -x
 
 export APP_JAR=spring-simple-0.0.1-SNAPSHOT.jar;
-export IMAGE=192.168.100.51:5000/spring-simple:latest
+export IMAGE=cloudcheflabs/spring-simple:latest
 
 
 for i in "$@"
