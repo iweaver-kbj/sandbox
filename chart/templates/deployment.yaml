@@ -47,7 +47,7 @@ spec:
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "{{ .Values.spring.profiles.active }}"
-            - name: simple-spring-boot_JAVA_OPTS
+            - name: JAVA_OPTS
               value: "{{ .Values.javaOpts }}"
           imagePullPolicy: {{ .Values.imagePullPolicy }}
           securityContext:

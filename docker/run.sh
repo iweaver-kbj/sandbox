@@ -4,7 +4,7 @@ set -eux;
 
 # run spring boot application.
 java \
-$simple-spring-boot_JAVA_OPTS \
+$JAVA_OPTS \
 --add-opens jdk.naming.rmi/com.sun.jndi.rmi.registry=ALL-UNNAMED \
 --add-opens java.base/java.lang=ALL-UNNAMED \
 --add-opens java.base/java.util=ALL-UNNAMED \
