@@ -54,6 +54,10 @@ liveness:
 # java opts.
 javaOpts: "-Xmx4G"
 
+# cert-manager.
+certManager:
+  clusterIssue: letsencrypt-prod
+
 # ingress.
 ingress:
   enabled: false

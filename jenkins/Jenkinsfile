@@ -7,7 +7,7 @@ pipeline {
                 script {
                     env.ENVIRONMENT = params.ENVIRONMENT
                     env.BRANCH = params.BRANCH
-                    for (String line : readFile(env.WORKSPACE + "/simple-spring-boot/spring-simple-spring-boot/jenkins/conf-${params.ENVIRONMENT}.properties").split("\r?\n")) {
+                    for (String line : readFile(env.WORKSPACE + "/jenkins/conf-${params.ENVIRONMENT}.properties").split("\r?\n")) {
                         if (line.indexOf("=") != -1) {
                             def tokens = line.split("=")
                             def key = tokens[0]
@@ -34,7 +34,7 @@ pipeline {
                 '
 
                 script {
-                    for (String line : readFile(env.WORKSPACE + "/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/conf-${params.ENVIRONMENT}.properties").split("\r?\n")) {
+                    for (String line : readFile(env.WORKSPACE + "/simple-spring-boot-branches/${BRANCH}/jenkins/conf-${params.ENVIRONMENT}.properties").split("\r?\n")) {
                         if (line.indexOf("=") != -1) {
                             def tokens = line.split("=")
                             def key = tokens[0]
@@ -69,7 +69,7 @@ pipeline {
             steps {
                 echo 'building docker image ...'
                 sh ' \
-                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/docker && \
+                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/docker && \
                 chmod +x build-docker.sh && \
                 ./build-docker.sh \
                 --jar=${JAR} \
@@ -89,52 +89,17 @@ pipeline {
                 '
             }
         }
-        stage('create certificate secret for dev') {
-            when {
-                expression { env.INGRESS_ENABLED == "true" && params.ENVIRONMENT == "dev" }
-            }
-            steps {
-                echo 'creating self-signed certificate secret for dev ...'
-                sh ' \
-                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/cert && \
-                chmod +x ./ssl.sh && \
-                ./ssl.sh ${INGRESS_HOST_NAME} && \
-                kubectl create ns ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - && \
-                kubectl create secret tls \
-                ${INGRESS_HOST_NAME}-tls \
-                --key ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/cert/${INGRESS_HOST_NAME}.key \
-                --cert ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/cert/${INGRESS_HOST_NAME}.crt \
-                -n ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - \
-                '
-            }
-        }
-        stage('create certificate secret for stg and prod') {
-            when {
-                expression { env.INGRESS_ENABLED == "true" && (params.ENVIRONMENT == "stg" || params.ENVIRONMENT == "prod") }
-            }
-            steps {
-                echo 'creating certificate secret ...'
-                sh ' \
-                kubectl create ns ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - && \
-                kubectl create secret tls \
-                ${INGRESS_HOST_NAME}-tls \
-                --key ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/public-cert/key.pem \
-                --cert ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/public-cert/cert.pem \
-                -n ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - \
-                '
-            }
-        }
         stage('deploy') {
             steps {
                 echo 'deploying ...'
                 sh ' \
-                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/chart && \
+                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/chart && \
                 helm upgrade \
                 ${NAMESPACE} \
                 --install \
                 --create-namespace \
                 --namespace ${NAMESPACE} \
-                --values ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/values-${ENVIRONMENT}.yaml \
+                --values ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/jenkins/values-${ENVIRONMENT}.yaml \
                 . \
                 '
 

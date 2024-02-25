@@ -4,6 +4,8 @@ kind: Ingress
 metadata:
   name: "{{ .Values.namespace }}-ingress"
   namespace: {{ .Values.namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.certManager.clusterIssue }}
 spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   rules:
