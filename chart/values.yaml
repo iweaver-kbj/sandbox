@@ -1,0 +1,65 @@
+namespace: spring-simple
+image: 192.168.100.51:5000/spring-simple:latest
+imagePullPolicy: Always
+replicas: 3
+resources:
+  requests:
+    cpu: 200m
+    memory: 1Gi
+  limits:
+    cpu: 2000m
+    memory: 5Gi
+priorityClassName: ""
+annotations: {}
+affinity: {}
+tolerations: {}
+nodeSelector: {}
+hostNetwork: false
+
+# hpa.
+hpa:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+
+# spring boot server port.
+server:
+  port : 8080
+
+# node port.
+nodePort: 32080
+
+# spring profile.
+spring:
+  profiles:
+    active: dev
+
+
+# spring boot management server.
+management:
+  server:
+    port: 18081
+
+# readiness probe.
+readiness:
+  initialDelaySeconds: 15
+  periodSeconds: 10
+
+# liveness probe.
+liveness:
+  initialDelaySeconds: 3
+  periodSeconds: 10
+
+# java opts.
+javaOpts: "-Xmx4G"
+
+# ingress.
+ingress:
+  enabled: false
+  ingressClassName: nginx
+  hostName: dev-spring-simple.simple-spring-boot-test.private
+  path: /
+
+# image pull secret.
+imagePullSecret: simple-reg-cred

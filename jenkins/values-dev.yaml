@@ -1,0 +1,50 @@
+# docker image.
+image: 192.168.100.51:5000/spring-simple:latest
+
+# replicas.
+replicas: 3
+
+# resources.
+resources:
+  requests:
+    cpu: 200m
+    memory: 1Gi
+  limits:
+    cpu: 1000m
+    memory: 5Gi
+
+# affinity.
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: node-type
+              operator: In
+              values:
+                - "worker"
+
+# tolerations.
+tolerations: {}
+
+# hpa.
+hpa:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+
+# spring profile.
+spring:
+  profiles:
+    active: dev
+
+# java opts.
+javaOpts: "-Xmx4G"
+
+# ingress.
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostName: dev-spring-simple.simple-spring-boot-test.private
+  path: /

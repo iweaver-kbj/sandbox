@@ -1,0 +1,50 @@
+# docker image.
+image: stg-registry-to-be-replaced/spring-simple:latest
+
+# replicas.
+replicas: 10
+
+# resources.
+resources:
+  requests:
+    cpu: 2000m
+    memory: 5Gi
+  limits:
+    cpu: 2000m
+    memory: 5Gi
+
+# affinity.
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: node-type
+              operator: In
+              values:
+                - "worker"
+
+# tolerations.
+tolerations: {}
+
+# hpa.
+hpa:
+  enabled: true
+  minReplicas: 10
+  maxReplicas: 20
+  targetCPUUtilizationPercentage: 50
+
+# spring profile.
+spring:
+  profiles:
+    active: stg
+
+# java opts.
+javaOpts: "-Xms4G -Xmx4G"
+
+# ingress.
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  hostName: stg-spring-simple.simple-spring-boot-test.private
+  path: /

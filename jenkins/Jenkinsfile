@@ -1,0 +1,147 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('env') {
+            steps {
+                script {
+                    env.ENVIRONMENT = params.ENVIRONMENT
+                    env.BRANCH = params.BRANCH
+                    for (String line : readFile(env.WORKSPACE + "/simple-spring-boot/spring-simple-spring-boot/jenkins/conf-${params.ENVIRONMENT}.properties").split("\r?\n")) {
+                        if (line.indexOf("=") != -1) {
+                            def tokens = line.split("=")
+                            def key = tokens[0]
+                            def value = (tokens.length == 1) ? "" : tokens[1]
+
+                            if (key.equals("gitRepo")) {
+                                env.GIT_REPO = value
+                            }
+                        }
+                    }
+                }
+                sh 'java -version'
+                sh 'env | grep GIT_REPO'
+            }
+        }
+        stage('clone git branch') {
+            steps {
+                echo 'checking out branch ...'
+                sh ' \
+                rm -rf ${WORKSPACE}/simple-spring-boot-branches/${BRANCH} || true && \
+                mkdir -p ${WORKSPACE}/simple-spring-boot-branches/${BRANCH} && \
+                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH} && \
+                git clone -b ${BRANCH} ${GIT_REPO} . \
+                '
+
+                script {
+                    for (String line : readFile(env.WORKSPACE + "/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/conf-${params.ENVIRONMENT}.properties").split("\r?\n")) {
+                        if (line.indexOf("=") != -1) {
+                            def tokens = line.split("=")
+                            def key = tokens[0]
+                            def value = (tokens.length == 1) ? "" : tokens[1]
+
+                            if(key.equals("jar")) {
+                                env.JAR = value
+                            } else if(key.equals("image")) {
+                                env.IMAGE = value
+                            } else if(key.equals("namespace")) {
+                                env.NAMESPACE = value
+                            } else if(key.equals("ingressEnabled")) {
+                                env.INGRESS_ENABLED = value
+                            } else if(key.equals("ingressHostName")) {
+                                env.INGRESS_HOST_NAME = value
+                            } else if(key.equals("dockerConfigPath")) {
+                                env.DOCKER_CONFIG_PATH = value
+                            }
+                        }
+                    }
+                }
+                sh 'java -version'
+                sh 'env | grep JAR'
+                sh 'env | grep IMAGE'
+                sh 'env | grep NAMESPACE'
+                sh 'env | grep INGRESS_ENABLED'
+                sh 'env | grep INGRESS_HOST_NAME'
+                sh 'env | grep DOCKER_CONFIG_PATH'
+            }
+        }
+        stage('build docker') {
+            steps {
+                echo 'building docker image ...'
+                sh ' \
+                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/docker && \
+                chmod +x build-docker.sh && \
+                ./build-docker.sh \
+                --jar=${JAR} \
+                --image=${IMAGE} \
+                '
+            }
+        }
+        stage('create image pull secret') {
+            steps {
+                echo 'creating image pull secret ...'
+                sh ' \
+                kubectl create ns ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - && \
+                kubectl create secret generic simple-reg-cred \
+                --from-file=.dockerconfigjson=${DOCKER_CONFIG_PATH} \
+                --type=kubernetes.io/dockerconfigjson \
+                -n ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - \
+                '
+            }
+        }
+        stage('create certificate secret for dev') {
+            when {
+                expression { env.INGRESS_ENABLED == "true" && params.ENVIRONMENT == "dev" }
+            }
+            steps {
+                echo 'creating self-signed certificate secret for dev ...'
+                sh ' \
+                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/cert && \
+                chmod +x ./ssl.sh && \
+                ./ssl.sh ${INGRESS_HOST_NAME} && \
+                kubectl create ns ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - && \
+                kubectl create secret tls \
+                ${INGRESS_HOST_NAME}-tls \
+                --key ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/cert/${INGRESS_HOST_NAME}.key \
+                --cert ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/cert/${INGRESS_HOST_NAME}.crt \
+                -n ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - \
+                '
+            }
+        }
+        stage('create certificate secret for stg and prod') {
+            when {
+                expression { env.INGRESS_ENABLED == "true" && (params.ENVIRONMENT == "stg" || params.ENVIRONMENT == "prod") }
+            }
+            steps {
+                echo 'creating certificate secret ...'
+                sh ' \
+                kubectl create ns ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - && \
+                kubectl create secret tls \
+                ${INGRESS_HOST_NAME}-tls \
+                --key ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/public-cert/key.pem \
+                --cert ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/public-cert/cert.pem \
+                -n ${NAMESPACE} --dry-run=client -o yaml | kubectl apply -f - \
+                '
+            }
+        }
+        stage('deploy') {
+            steps {
+                echo 'deploying ...'
+                sh ' \
+                cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/chart && \
+                helm upgrade \
+                ${NAMESPACE} \
+                --install \
+                --create-namespace \
+                --namespace ${NAMESPACE} \
+                --values ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/simple-spring-boot/spring-simple-spring-boot/jenkins/values-${ENVIRONMENT}.yaml \
+                . \
+                '
+
+                echo 'rolling out deployment...'
+                sh 'kubectl rollout restart deploy ${NAMESPACE} -n ${NAMESPACE}'
+
+            }
+        }
+    }
+}

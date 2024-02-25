@@ -1,0 +1,24 @@
+{{- if .Values.ingress.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: "{{ .Values.namespace }}-ingress"
+  namespace: {{ .Values.namespace }}
+spec:
+  ingressClassName: {{ .Values.ingress.ingressClassName }}
+  rules:
+    - host: {{ .Values.ingress.hostName }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: "{{ .Values.namespace }}-service"
+                port:
+                  number: {{ .Values.server.port }}
+            path: {{ .Values.ingress.path }}
+            pathType: ImplementationSpecific
+  tls:
+    - hosts:
+        - {{ .Values.ingress.hostName }}
+      secretName: {{ .Values.ingress.hostName }}-tls
+{{- end }}
