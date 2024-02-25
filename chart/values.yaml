@@ -62,7 +62,7 @@ certManager:
 ingress:
   enabled: false
   ingressClassName: nginx
-  hostName: dev-spring-simple.simple-spring-boot-test.private
+  hostName: dev-spring-simple.cloudchef-labs.com
   path: /
 
 # image pull secret.

@@ -46,5 +46,5 @@ javaOpts: "-Xms4G -Xmx4G"
 ingress:
   enabled: true
   ingressClassName: nginx
-  hostName: spring-simple.simple-spring-boot-test.private
+  hostName: spring-simple.cloudchef-labs.com
   path: /
