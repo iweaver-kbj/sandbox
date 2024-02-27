@@ -1,5 +1,5 @@
-namespace: spring-simple
-image: cloudcheflabs/spring-simple:latest
+namespace: spring-simple-jupyter-hub
+image: cloudcheflabs/spring-simple-jupyter-hub:latest
 imagePullPolicy: Always
 replicas: 3
 resources:
