@@ -26,4 +26,14 @@ public class DemoController {
 
         return result;
     }
+    @GetMapping("/api/v1/title")
+    public String getFibonacciSeriesBelowGivenInteger(@RequestParam Map<String, String> params) {
+        String inputString = params.get("input");
+        LOG.info("인풋 input: {}", inputString);
+
+        int input = Integer.valueOf(inputString);
+        String result = "/api/v1/title";
+
+        return result;
+    }
 }
