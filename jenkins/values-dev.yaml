@@ -47,4 +47,4 @@ ingress:
   enabled: true
   ingressClassName: nginx
   hostName: dev-spring-simple.cloudchef-labs.com
-  path: /
+  path: /api/v1/fibs
