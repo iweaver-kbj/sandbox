@@ -17,22 +17,13 @@ public class DemoController {
     private static Logger LOG = LoggerFactory.getLogger(DemoController.class);
 
     @GetMapping("/api/v1/fibs")
-    public List<Integer> getFibonacciSeriesBelowGivenInteger(@RequestParam Map<String, String> params) {
+    public String getFibonacciSeriesBelowGivenInteger(@RequestParam Map<String, String> params) {
         String inputString = params.get("input");
         LOG.info("인풋 input: {}", inputString);
 
         int input = Integer.valueOf(inputString);
-        List<Integer> result;
-        if (input == 0)
-            result = List.of(0);
-        else {
-            int n = 0; int m = 1;
-            result = new ArrayList<>(Arrays.asList(n));
-            while (m <= input) {
-                result.add(m);
-                m = n + m; n = m - n;
-            }
-        }
+        String result = "/api/v1/fibs";
+
         return result;
     }
 }
