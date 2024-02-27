@@ -1,5 +1,5 @@
-namespace: spring-simple
-image: cloudcheflabs/spring-simple:latest
+namespace: spring-simple-grafana
+image: cloudcheflabs/spring-simple-grafana:latest
 imagePullPolicy: Always
 replicas: 3
 resources:
