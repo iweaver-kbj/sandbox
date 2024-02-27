@@ -3,8 +3,8 @@
 
 set -e -x
 
-export APP_JAR=spring-simple-0.0.1-SNAPSHOT.jar;
-export IMAGE=cloudcheflabs/spring-simple:latest
+export APP_JAR=spring-simple-jupyter-hub-0.0.1-SNAPSHOT.jar;
+export IMAGE=cloudcheflabs/spring-simple-jupyter-hub:latest
 
 
 for i in "$@"
