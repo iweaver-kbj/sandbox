@@ -1,5 +1,5 @@
 # docker image.
-image: cloudcheflabs/spring-simple:latest
+image: cloudcheflabs/spring-simple-jupyter-hub:latest
 
 # replicas.
 replicas: 3
