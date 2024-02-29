@@ -97,7 +97,7 @@ pipeline {
                 sh ' \
                 cd ${WORKSPACE}/simple-spring-boot-branches/${BRANCH}/chart && \
                 helm upgrade \
-                ${NAMESPACE} \
+                ${APPNAME} \
                 --install \
                 --create-namespace \
                 --namespace ${NAMESPACE} \
