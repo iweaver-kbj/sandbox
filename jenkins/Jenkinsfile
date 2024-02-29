@@ -46,6 +46,8 @@ pipeline {
                                 env.IMAGE = value
                             } else if(key.equals("namespace")) {
                                 env.NAMESPACE = value
+                            } else if(key.equals("appname")) {
+                                env.APPNAME = value
                             } else if(key.equals("ingressEnabled")) {
                                 env.INGRESS_ENABLED = value
                             } else if(key.equals("ingressHostName")) {
@@ -104,7 +106,7 @@ pipeline {
                 '
 
                 echo 'rolling out deployment...'
-                sh 'kubectl rollout restart deploy ${NAMESPACE} -n ${NAMESPACE}'
+                sh 'kubectl rollout restart deploy ${APPNAME} -n ${NAMESPACE}'
 
             }
         }

@@ -1,4 +1,5 @@
-namespace: spring-simple-jupyter-hub
+namespace: datastore
+appname: jupyter-hub
 image: cloudcheflabs/spring-simple-jupyter-hub:latest
 imagePullPolicy: Always
 replicas: 3

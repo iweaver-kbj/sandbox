@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.namespace }}
+  name: {{ .Values.appname }}
   labels:
-    app: {{ .Values.namespace }}
+    app: {{ .Values.appname }}
     component: simple-spring-boot
   namespace: {{ .Values.namespace }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      app: {{ .Values.namespace }}
+      app: {{ .Values.appname }}
       component: simple-spring-boot
   template:
     metadata:
       labels:
-        app: {{ .Values.namespace }}
+        app: {{ .Values.appname }}
         component: simple-spring-boot
       {{- with .Values.annotations }}
       annotations:
@@ -38,11 +38,11 @@ spec:
       priorityClassName: {{ .Values.priorityClassName }}
       {{- end }}
       hostNetwork: {{ .Values.hostNetwork }}
-      serviceAccountName: {{ .Values.namespace }}
+      serviceAccountName: {{ .Values.appname }}
       imagePullSecrets:
         - name: {{ .Values.imagePullSecret }}
       containers:
-        - name: {{ .Values.namespace }}
+        - name: {{ .Values.appname }}
           image: {{ .Values.image }}
           env:
             - name: SPRING_PROFILES_ACTIVE
@@ -82,4 +82,4 @@ spec:
       volumes:
         - name: simple-spring-boot-conf-volume
           configMap:
-            name: {{ .Values.namespace }}
+            name: {{ .Values.appname }}
