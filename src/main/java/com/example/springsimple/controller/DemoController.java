@@ -22,17 +22,7 @@ public class DemoController {
         LOG.info("인풋 input: {}", inputString);
 
         int input = Integer.valueOf(inputString);
-        String result = "/api/v1/fibs";
-
-        return result;
-    }
-    @GetMapping("/api/v1/jupyter-hub")
-    public String getFibonacciSeriesBelowGivenInteger2(@RequestParam Map<String, String> params) {
-        String inputString = params.get("input");
-        LOG.info("인풋 input: {}", inputString);
-
-        int input = Integer.valueOf(inputString);
-        String result = "/api/v1/title";
+        String result = "grafana";
 
         return result;
     }
