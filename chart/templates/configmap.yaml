@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Values.namespace }}
+  name: {{ .Values.appname }}
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ .Values.namespace }}
+    app: {{ .Values.appname }}
     component: simple-spring-boot
 data:
   application.yml: |

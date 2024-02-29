@@ -1,4 +1,5 @@
 namespace: datastore
+appname: grafana
 image: cloudcheflabs/spring-simple-grafana:latest
 imagePullPolicy: Always
 replicas: 3

@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: {{ .Values.namespace }}
+  name: {{ .Values.appname }}
   labels:
-    app.kubernetes.io/name: {{ .Values.namespace }}
+    app.kubernetes.io/name: {{ .Values.appname }}
   namespace: {{ .Values.namespace }}
 
 ---
@@ -15,7 +15,7 @@ metadata:
     rbac.authorization.kubernetes.io/autoupdate: "true"
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
-  name: {{ .Values.namespace }}
+  name: {{ .Values.appname }}
 rules:
   - apiGroups:
       - '*'
@@ -37,12 +37,12 @@ metadata:
     rbac.authorization.kubernetes.io/autoupdate: "true"
   labels:
     kubernetes.io/bootstrapping: rbac-defaults
-  name: {{ .Values.namespace }}
+  name: {{ .Values.appname }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: {{ .Values.namespace }}
+  name: {{ .Values.appname }}
 subjects:
   - kind: ServiceAccount
-    name: {{ .Values.namespace }}
+    name: {{ .Values.appname }}
     namespace: {{ .Values.namespace }}
